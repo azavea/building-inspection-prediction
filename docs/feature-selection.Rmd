@@ -1,0 +1,70 @@
+---
+title: "Feature Selection"
+---
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada
+purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a
+convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius
+varius neque.
+
+## Boruta
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada
+purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a
+convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius
+varius neque.
+
+![](plots/fig.x-Variable_importance_plot.svg)
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada
+purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a
+convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius
+varius neque.
+
+```{r eval=FALSE}
+
+# packages
+packages(c("tidyverse", "caret", "Boruta"))
+
+# extract just the predictor variable candidates
+dd <- ds %>%
+  select(one_of(mod_vars))
+
+# partition dataset for boruta
+set.seed(12345)
+inTrain <- createDataPartition(dd$o.failed.n, p = 0.6, list = FALSE)
+boruta.train.set <- dd[inTrain, -c(1,2)]
+
+# run iterative random forrest variable importance test
+boruta.train <- Boruta(o.failed ~ ., data = train, doTrace = 2)
+# get final decision
+fd <- boruta.train$finalDecision
+
+# generate a list of non-useful variables
+rejected_vars <- fd[which(fd != "Confirmed")] %>% names
+
+```
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada
+purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a
+convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius
+varius neque.
+
+```{r eval=TRUE, echo=FALSE}
+source("../R/helper-functions.R")
+load("../data/full_dataset_for_modeling.Rdata")
+load("../data/boruta.train.Rdata")
+```
+```{r eval=TRUE}
+print(rejected_vars)
+```
+
+and the variables that were accepted:
+
+```{r eval=TRUE, echo=FALSE}
+accepted_vars <- setdiff(names(boruta.train.set), rejected_vars)
+print(accepted_vars)
+```
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada
+purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a
+convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius
+varius neque.

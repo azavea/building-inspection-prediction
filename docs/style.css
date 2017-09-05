@@ -1,0 +1,49 @@
+h1 {
+  font-size: 42px;
+  color: #126075;
+  margin-top: 50px;
+  margin-bottom: 20px;
+}
+
+h2 {
+  color: #5876BF;
+}
+
+p {
+  /*margin-top: 10px;*/
+  margin-bottom: 30px;
+}
+
+pre {
+  /*margin-top: 10px;*/
+  margin-right: 40px;
+  margin-left: 40px;
+  margin-bottom: 30px;
+  background-color: rgba(255,255,255,0.1);
+  border: 1px solid #daebfb;
+}
+
+img {
+  margin-bottom: 30px;
+}
+
+.embedded-tweet {
+  margin-bottom: 30px;
+  margin-left: 40px;
+  margin-right: 40px;
+}
+
+img.logo {
+  width: 50%;
+  margin-top: 60px;
+  margin-bottom: 80px;
+  display: block;
+}
+
+.title-page-title {
+  color: #0000000;
+}
+
+hr {
+  color: #126075;
+}

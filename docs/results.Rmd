@@ -1,0 +1,30 @@
+---
+title: "Results"
+output: "html_document"
+---
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada
+purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a
+convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius
+varius neque.
+
+![](plots/fig.x-ROC_curves.svg)
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada
+purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a
+convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius
+varius neque.
+
+![](plots/fig.x-Confusion_matrix_waffle.svg)
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada
+purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a
+convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius
+varius neque.
+
+![](plots/fig.x-Confusion_matrix_maps.svg)
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada
+purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a
+convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius
+varius neque.

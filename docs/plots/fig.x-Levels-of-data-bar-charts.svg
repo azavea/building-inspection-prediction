@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<svg xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 960.75 534.00'>
+<defs>
+  <style type='text/css'><![CDATA[
+    line, polyline, path, rect, circle {
+      fill: none;
+      stroke: #000000;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10.00;
+    }
+  ]]></style>
+</defs>
+<rect width='100%' height='100%' style='stroke: none; fill: #FFFFFF;'/>
+<defs>
+  <clipPath id='cpMTYuOTEzfDk0Ni41Nzd8NTE5LjgyN3w0Ny4yMTg0'>
+    <rect x='16.91' y='47.22' width='929.66' height='472.61' />
+  </clipPath>
+</defs>
+<rect x='16.91' y='401.67' width='301.50' height='101.27' style='stroke-width: 2.13; stroke: #FFFFFF; stroke-linecap: butt; fill: #ECE2C9;' clip-path='url(#cpMTYuOTEzfDk0Ni41Nzd8NTE5LjgyN3w0Ny4yMTg0)' />
+<rect x='16.91' y='289.15' width='395.35' height='101.27' style='stroke-width: 2.13; stroke: #FFFFFF; stroke-linecap: butt; fill: #ECE2C9;' clip-path='url(#cpMTYuOTEzfDk0Ni41Nzd8NTE5LjgyN3w0Ny4yMTg0)' />
+<rect x='16.91' y='176.62' width='649.73' height='101.27' style='stroke-width: 2.13; stroke: #126075; stroke-linecap: butt; fill: #ECE2C9;' clip-path='url(#cpMTYuOTEzfDk0Ni41Nzd8NTE5LjgyN3w0Ny4yMTg0)' />
+<rect x='16.91' y='64.10' width='929.66' height='101.27' style='stroke-width: 2.13; stroke: #FFFFFF; stroke-linecap: butt; fill: #ECE2C9;' clip-path='url(#cpMTYuOTEzfDk0Ni41Nzd8NTE5LjgyN3w0Ny4yMTg0)' />
+<g clip-path='url(#cpMTYuOTEzfDk0Ni41Nzd8NTE5LjgyN3w0Ny4yMTg0)'><text x='456.37' y='110.72' style='font-size: 11.04px; fill: #126075; font-family: Arial;' textLength='50.76px' lengthAdjust='spacingAndGlyphs'>78.7k total</text></g>
+<g clip-path='url(#cpMTYuOTEzfDk0Ni41Nzd8NTE5LjgyN3w0Ny4yMTg0)'><text x='458.82' y='126.62' style='font-size: 11.04px; fill: #126075; font-family: Arial;' textLength='45.86px' lengthAdjust='spacingAndGlyphs'>violations</text></g>
+<g clip-path='url(#cpMTYuOTEzfDk0Ni41Nzd8NTE5LjgyN3w0Ny4yMTg0)'><text x='320.38' y='223.25' style='font-size: 11.04px; fill: #126075; font-family: Arial;' textLength='42.79px' lengthAdjust='spacingAndGlyphs'>from 55k</text></g>
+<g clip-path='url(#cpMTYuOTEzfDk0Ni41Nzd8NTE5LjgyN3w0Ny4yMTg0)'><text x='293.78' y='239.15' style='font-size: 11.04px; fill: #126075; font-family: Arial;' textLength='96.01px' lengthAdjust='spacingAndGlyphs'>building inspections</text></g>
+<g clip-path='url(#cpMTYuOTEzfDk0Ni41Nzd8NTE5LjgyN3w0Ny4yMTg0)'><text x='180.35' y='335.77' style='font-size: 11.04px; fill: #126075; font-family: Arial;' textLength='68.47px' lengthAdjust='spacingAndGlyphs'>collected from</text></g>
+<g clip-path='url(#cpMTYuOTEzfDk0Ni41Nzd8NTE5LjgyN3w0Ny4yMTg0)'><text x='175.91' y='351.67' style='font-size: 11.04px; fill: #126075; font-family: Arial;' textLength='77.35px' lengthAdjust='spacingAndGlyphs'>33.5k L+I cases</text></g>
+<g clip-path='url(#cpMTYuOTEzfDk0Ni41Nzd8NTE5LjgyN3w0Ny4yMTg0)'><text x='148.09' y='448.30' style='font-size: 11.04px; fill: #126075; font-family: Arial;' textLength='39.14px' lengthAdjust='spacingAndGlyphs'>at 25.5k</text></g>
+<g clip-path='url(#cpMTYuOTEzfDk0Ni41Nzd8NTE5LjgyN3w0Ny4yMTg0)'><text x='127.91' y='464.20' style='font-size: 11.04px; fill: #126075; font-family: Arial;' textLength='79.50px' lengthAdjust='spacingAndGlyphs'>unique locations</text></g>
+<defs>
+  <clipPath id='cpMHw5NjAuNzV8NTM0fDA='>
+    <rect x='0.00' y='0.00' width='960.75' height='534.00' />
+  </clipPath>
+</defs>
+<g clip-path='url(#cpMHw5NjAuNzV8NTM0fDA=)'><text x='16.91' y='35.99' style='font-size: 10.00px; font-style: italic; fill: #126075; font-family: Arial;' textLength='359.11px' lengthAdjust='spacingAndGlyphs'>Analysis used inspection-level data from 55,000 building inspections (2014-2017)</text></g>
+<g clip-path='url(#cpMHw5NjAuNzV8NTM0fDA=)'><text x='16.91' y='23.31' style='font-size: 11.00px; font-weight: bold; fill: #126075; font-family: Arial;' textLength='128.95px' lengthAdjust='spacingAndGlyphs'>Building Inspection Data</text></g>
+</svg>

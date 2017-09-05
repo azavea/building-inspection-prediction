@@ -1,0 +1,57 @@
+label,variable,group
+Num previous inspection failures: 1,bere.1,Num previous inspection failures
+Num previous inspection failures: 2,bere.2,Num previous inspection failures
+Num previous inspection failures: 3,bere.3,Num previous inspection failures
+Avg dist to 10 nearest non-compliant bldgs,e.avgDists.all.n10,Distance to non-compliant bldgs
+Avg dist to 5 nearest non-compliant bldgs,e.avgDists.all.n5,Distance to non-compliant bldgs
+Avg dist to 10 nearest non-repeator bldgs,e.avgDists.nr.n10,Dist to non-repeator bldgs
+Avg dist to 5 nearest non-repeator bldgs,e.avgDists.nr.n5,Dist to non-repeator bldgs
+Avg dist to 10 nearest repeator bldgs,e.avgDists.rep.n10,Dist to repeator bldgs
+Avg dist to 5 nearest repeator bldgs,e.avgDists.rep.n5,Dist to repeator bldgs
+Dist to nearby repeators relative to all,e.avgDists.repOfAll.n5,Dist to repeators relative to all
+Insp desc: CASE BUILDING INSPECTION,inspDesc.1,Insp desc
+Insp desc: CE-C&I FIRE INSPECTION,inspDesc.2,Insp desc
+Insp desc: CE-HOUSING CODE ENFORCE INSP,inspDesc.3,Insp desc
+Insp desc: CSU INITIAL INSPECTION,inspDesc.4,Insp desc
+Insp desc: PRECOURT INSPECTION,inspDesc.5,Insp desc
+Insp desc: VACANT PROPERTY INSPECTION,inspDesc.6,Insp desc
+Insp desc: Other,inspDesc.7,Insp desc
+Num distinct viol types: 1,numFailTypes.1,Num distinct viol types
+Num distinct viol types: 2,numFailTypes.2,Num distinct viol types
+Num distinct viol types: 3,numFailTypes.3,Num distinct viol types
+Num distinct viol types: 6,numFailTypes.6,Num distinct viol types
+Num total viols: 1,numViol.1,Num total viols
+Num total viols: 2,numViol.2,Num total viols
+Num total viols: 3,numViol.6,Num total viols
+Non tax delinquent owner,ownerDelinquent.1,Tax delinquency
+Tax delinquent owner,ownerDelinquent.2,Tax delinquency
+Num previous failures: 1,prevFail.1,Num previous failures
+Num previous failures: 2,prevFail.2,Num previous failures
+Num previous failures: 3,prevFail.3,Num previous failures
+Num previous failures: 4,prevFail.4,Num previous failures
+Num previous failures: 7,prevFail.7,Num previous failures
+Case priority: 5 DAY REVIEW GROUP,priorityde.1,Case priority
+Case priority: CONSTRUCTION SERVICES,priorityde.2,Case priority
+Case priority: HAZARD,priorityde.3,Case priority
+Case priority: IMMINENTLY DANGEROUS,priorityde.4,Case priority
+Case priority: NumN HAZARDOUS,priorityde.5,Case priority
+Case priority: UNSAFE,priorityde.6,Case priority
+Prev insp outcome: Failed,recStatus.1,Prev insp outcome
+Prev insp outcome: Passed,recStatus.2,Prev insp outcome
+Prev insp outcome: Other,recStatus.3,Prev insp outcome
+Owner tax balance,s.ownerTaxBalance,Owner tax balance
+Days since case was added,s.sinceAdded,Days since case was added
+Days since last insp,s.sinceLastInsp,Days since last insp
+Days since initial viol,s.sinceViolation,Days since initial viol
+Viol type: ANNUAL CERT FIRE ALARM,violTpe.1,Viol type
+Viol type: EXT STRUCT UNSAFE COND 7,violTpe.2,Viol type
+Viol type: EXT STRUCT UNSAFE COND 8,violTpe.3,Viol type
+Viol type: ID STRUCTURE,violTpe.4,Viol type
+Viol type: INTERIOR SURFACES,violTpe.5,Viol type
+Viol type: UNSAFE STRUCTURE,violTpe.6,Viol type
+Viol type: VACANT STRUCTURE LICENSE,violTpe.7,Viol type
+Viol type: Other,violTpe.8,Viol type
+Address doesn't match to vacant property db,vpi.isBldgAddkey.1,Vacant property address
+Address matches to vacant property db,vpi.isBldgAddkey.2,Vacant property address
+Owner does not match to vacant property db,vpi.isOwner.1,Vacant property owner
+Owner matches to vacant property db,vpi.isOwner.2,Vacant property owner

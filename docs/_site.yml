@@ -1,0 +1,18 @@
+name: "predicting-building-inspections"
+output_dir: "."
+navbar:
+  title: "predicting building inspections"
+  right:
+    - text: "data preprocessing"
+      href: data-wrangling-and-feature-engineering.html
+    - text: "feature selection"
+      href: feature-selection.html
+    - text: "model building"
+      href: model-selection.html
+    - text: "results"
+      href: results.html
+
+output:
+  html_document:
+    theme: simplex
+    css: style.css

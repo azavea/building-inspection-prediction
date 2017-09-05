@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>Data Preprocessing</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/simplex.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-1.1/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+<link rel="stylesheet" href="style.css" type="text/css" />
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 41px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 46px;
+  margin-top: -46px;
+}
+
+.section h2 {
+  padding-top: 46px;
+  margin-top: -46px;
+}
+.section h3 {
+  padding-top: 46px;
+  margin-top: -46px;
+}
+.section h4 {
+  padding-top: 46px;
+  margin-top: -46px;
+}
+.section h5 {
+  padding-top: 46px;
+  margin-top: -46px;
+}
+.section h6 {
+  padding-top: 46px;
+  margin-top: -46px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">predicting building inspections</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="data-wrangling-and-feature-engineering.html">data preprocessing</a>
+</li>
+<li>
+  <a href="feature-selection.html">feature selection</a>
+</li>
+<li>
+  <a href="model-selection.html">model building</a>
+</li>
+<li>
+  <a href="results.html">results</a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Data Preprocessing</h1>
+
+</div>
+
+
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<div id="load-and-wrangle-data" class="section level2">
+<h2>Load and wrangle data</h2>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<pre class="r"><code># packages
+packages(c(&quot;tidyverse&quot;, &quot;data.table&quot;, &quot;sp&quot;, &quot;rgdal&quot;, &quot;lubridate&quot;, &quot;plyr&quot;,
+  &quot;forcats&quot;, &quot;caret&quot;, &quot;spatstat&quot;, &quot;RCurl&quot;, &quot;jsonlite&quot;))
+
+# load spatial datasets
+load(&quot;data/lni_data.Rdata&quot;)
+
+# get coordinates as attributes
+insp &lt;- getCoords(insp)
+viol &lt;- getCoords(viol)
+
+# join violations and inspections dataset
+full_dat &lt;- joinSPdfs(viol, insp, &quot;casenumber&quot;)
+
+# clean full data frame:
+#   rename fields, creteUID, add a violation year field   
+full_dat &lt;- cleanData(full_dat)
+
+# filter the data frame
+#   remove some NA fields, closed inspections
+filtered_dat &lt;- filterData(full_dat)
+
+# associate each inspection with other inspections in its case
+#   measure outcomes of the same case before and after the inspection
+#     in question
+filtered_dat &lt;- measureAllFails(filtered_dat)
+
+# remove the initial inspection instances
+df &lt;- filtered_dat %&gt;%
+  filter(rec.inspStatus != &quot;none&quot;) %&gt;%
+  filter(as.Date(violDte) &lt; as.Date(inspCompl)) %&gt;%
+  data.table() %&gt;%
+  .[, c(&quot;organizati&quot;, &quot;unit&quot;, &quot;apdesc&quot;, &quot;aptype&quot;) := NULL] %&gt;%
+  na.omit()</code></pre>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+</div>
+<div id="feature-engineering" class="section level2">
+<h2>Feature Engineering</h2>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<pre class="r"><code># create additional variables
+df$zipShort &lt;- substr(df$zip, 1, 5) %&gt;% as.factor()
+df$failed &lt;- ifelse(df$inspStatus == &quot;Failed&quot;, 1, 0)
+df$before &lt;- as.factor(df$before)
+
+# add 3 variables indicating durations from previous events in lifecycle of
+#   building case
+df &lt;- durationVars(df)</code></pre>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<div class="figure">
+<img src="plots/fig.x-Joy_plots.png" />
+
+</div>
+<pre class="r"><code># extract &#39;violation type&#39; variable and remove levels occurring &lt; 0.02%
+#   of the time
+df_violTpe  &lt;- df %&gt;%
+  select(apinspkey, violDesc) %&gt;%
+  mutate(violTpe = fct_lump(violDesc, p = 0.02)) %&gt;%
+  dplyr::rename(id.apinspkey = apinspkey)
+
+# generate a lookup table to get the names of violation types (for later
+#   use)
+violType_lookup &lt;- getFactorLevelLookup(df_violTpe$violTpe, &quot;violTpe&quot;)
+
+# encode violation-type categorical feature as a series of binary
+#   numeric dummy variables
+df_violTpe &lt;- castAndSumm(df_violTpe, &quot;id.apinspkey&quot;, &quot;violTpe&quot;, binary = FALSE)</code></pre>
+<div class="figure">
+<img src="plots/fig.x-Levels-of-data-bar-charts.png" />
+
+</div>
+<pre class="r"><code># collapse dataset to the inspection level, summarizing
+ds &lt;- summariseInspections(df)</code></pre>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<div class="figure">
+<img src="plots/fig.x-Map_of_fails_and_passes.png" />
+
+</div>
+<pre class="r"><code># measure for spatial autocorrelation among repeat violators
+ds &lt;- endogMain(ds, nlist = c(5, 10))
+
+# remove infrequently occuring categorical variables
+ds$f.inspDesc &lt;- fct_lump(ds$f.inspDesc, prop = 0.02)
+ds$f.recStatus &lt;- fct_lump(ds$f.recStatus, prop = 0.02)
+
+# miscellaneous feature engineering
+ds &lt;- ds %&gt;%
+  mutate(f.numFailTypes = as.factor(squishToRange(e.numFailTypes))) %&gt;%
+  mutate(f.numViol = as.factor(squishToRange(e.numViol))) %&gt;%
+  mutate(f.prevFail = as.factor(squishToRange(e.prevFail))) %&gt;%
+  select(-e.numFailTypes, -e.numViol, -e.prevFail) %&gt;%
+  filter(is.finite(e.avgDists.repOfAll.n5))</code></pre>
+</div>
+<div id="external-data-sources" class="section level2">
+<h2>External Data Sources</h2>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<pre class="r"><code># vacant property indicators
+# read dataset
+vpi &lt;- read.csv(&quot;http://data.phl.opendata.arcgis.com/datasets/f7ed68293c5\
+                e40d58f1de9c8435c3e84_0.csv&quot;, stringsAsFactors = TRUE)
+
+# look for address matches
+ds$f.vpi.isBldgAddkey &lt;- ifelse(
+  ds$l.addresskey %in% vpi$LNIADDRESSKEY, 1, 0
+  ) %&gt;% as.factor()
+
+# look for owner name matches
+ds$f.vpi.isOwner &lt;- ifelse(
+  ds$l.owner %in% vpi$OWNER1, 1, ifelse(ds$l.owner %in% vpi$OWNER2, 1, 0)
+  ) %&gt;%
+  as.factor()
+
+
+# tax delinquency dataset
+# encode and format api call
+url &lt;- URLencode(&quot;https://data.phila.gov/carto/api/v2/sql?q=SELECT owner,\
+                 total FROM real_estate_tax_balances WHERE total &gt; 0 AND \
+                 tax_period &gt; 2015 AND owner != &#39;&#39;&quot;)
+url &lt;- gsub(&quot;22&quot;, &quot;27&quot;, url)
+
+# get tax delinquency data
+delinquent &lt;- getURL(url)
+
+# parse delinquency data from JSON
+del &lt;- fromJSON(delinquent)$rows %&gt;%
+  group_by(owner) %&gt;%
+  dplyr::summarise(s.ownerTaxBalance = mean(total)) %&gt;%
+  dplyr::rename(l.owner = owner)
+
+# extract a dataset of tax balance data for each property
+ds.temp &lt;- ds %&gt;%
+  mutate(l.owner = as.character(l.owner)) %&gt;%
+  left_join(del) %&gt;%
+  select(s.ownerTaxBalance) %&gt;%
+  mutate(
+    s.ownerTaxBalance = ifelse(
+      is.na(s.ownerTaxBalance), 0, s.ownerTaxBalance)) %&gt;%
+  mutate(f.ownerDelinquent = as.factor(ifelse(s.ownerTaxBalance &gt; 5, 1, 0)))
+
+# and bind it to the master dataset
+ds &lt;- cbind(ds, ds.temp)</code></pre>
+</div>
+<div id="dealing-with-categorical-variables" class="section level2">
+<h2>Dealing with categorical variables</h2>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<div class="embedded-tweet">
+<blockquote class="twitter-tweet" data-partner="tweetdeck">
+<p lang="en" dir="ltr">
+One-Hot Encoding <a href="https://twitter.com/hashtag/machinelearningflashcards?src=hash">#machinelearningflashcards</a> <a href="https://t.co/n3gUivTxLc">pic.twitter.com/n3gUivTxLc</a>
+</p>
+— Chris Albon (<span class="citation">@chrisalbon</span>) <a href="https://twitter.com/chrisalbon/status/895737233986142208">August 10, 2017</a>
+</blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+</div>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<pre class="r"><code># get list of factor variable names
+names &lt;- ds %&gt;%
+  select(starts_with(&quot;f.&quot;)) %&gt;%
+  names %&gt;%
+  as.list
+
+# encode each of these as  a series of binary dummy variables
+factor_variable_list &lt;- llply(names, castFactorVars, dat = ds,
+                              .progress = &quot;text&quot;)
+
+# join all categorical data variable dfs together
+ds &lt;- plyr::join_all(factor_variable_list, by = &quot;id.apinspkey&quot;,
+                     type = &quot;left&quot;, match = &quot;all&quot;) %&gt;%
+  left_join(df_violTpe, &quot;id.apinspkey&quot;) %&gt;%
+  select(-id.apinspkey) %&gt;%
+  cbind(ds,. )
+
+# generate two different response variables, factor and numeric
+#   for different model types
+ds &lt;- ds %&gt;%
+  dplyr::rename(o.failed.n = o.failed) %&gt;%
+  mutate(o.failed.f = as.factor(o.failed.n)) %&gt;%
+  select(o.failed.n, o.failed.f, 2:ncol(.))
+
+# create a vector of variable names that will be used in the models
+# and one that won&#39;t
+mod_vars &lt;- ds %&gt;% select(
+  -o.numFails, -starts_with(&quot;i.&quot;),
+  -starts_with(&quot;l.&quot;), -starts_with(&quot;f.&quot;)) %&gt;%
+  names
+non_mod_vars &lt;- setdiff(names(ds), mod_vars)</code></pre>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
