@@ -6,4 +6,4 @@
 <div>
 ______
 
-<img class="logo" src="plots/fig.x-Map_of_fails_and_passes.svg">
+<img style="width: 100%" src="plots/fig.x-Map_of_fails_and_passes.png">
