@@ -259,7 +259,7 @@ df$before &lt;- as.factor(df$before)
 df &lt;- durationVars(df)</code></pre>
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
 <div class="figure">
-<img src="plots/fig.x-Joy_plots.png" />
+<img src="plots/fig.x-Joy_plots.svg" />
 
 </div>
 <pre class="r"><code># extract &#39;violation type&#39; variable and remove levels occurring &lt; 0.02%
@@ -277,14 +277,14 @@ violType_lookup &lt;- getFactorLevelLookup(df_violTpe$violTpe, &quot;violTpe&quo
 #   numeric dummy variables
 df_violTpe &lt;- castAndSumm(df_violTpe, &quot;id.apinspkey&quot;, &quot;violTpe&quot;, binary = FALSE)</code></pre>
 <div class="figure">
-<img src="plots/fig.x-Levels-of-data-bar-charts.png" />
+<img src="plots/fig.x-Levels-of-data-bar-charts.svg" />
 
 </div>
 <pre class="r"><code># collapse dataset to the inspection level, summarizing
 ds &lt;- summariseInspections(df)</code></pre>
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
 <div class="figure">
-<img src="plots/fig.x-Map_of_fails_and_passes.png" />
+<img src="plots/fig.x-Map_of_fails_and_passes.svg" />
 
 </div>
 <pre class="r"><code># measure for spatial autocorrelation among repeat violators

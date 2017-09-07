@@ -25,6 +25,7 @@ pre {
 
 img {
   margin-bottom: 30px;
+  width: 100%;
 }
 
 .embedded-tweet {
@@ -33,19 +34,20 @@ img {
   margin-right: 40px;
 }
 
-img.logo {
+img#logo {
   width: 50%;
   margin-top: 60px;
   margin-bottom: 80px;
   display: block;
 }
 
-img.main {
+#main {
   width: 100%;
-  margin-top: 60px;
-  margin-bottom: 80px;
+  margin-top: 30px;
+  margin-bottom: 30px;
   display: block;
 }
+
 .title-page-title {
   color: #0000000;
 }
