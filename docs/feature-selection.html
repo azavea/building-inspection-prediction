@@ -205,15 +205,10 @@ $(document).ready(function () {
 </div>
 
 
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>We have created a large dataset with 89 attributes. Not all of these will be useful predictors. In this section, we will narrow down our dataset by selecting only the features that will be useful to predict for the inspection outcome. Some of the model types that we’ll experiment have built-in feature selection while others don’t. Either way, it will lead to better results if we remove variables that are redundant or simply just random noise. There are several methods for variable selection but in this case we used a feature selection algorithm called “Boruta” from an R package with the same name.</p>
 <div id="boruta" class="section level2">
 <h2>Boruta</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
-<div class="figure">
-<img src="plots/fig.x-Variable_importance_plot.svg" />
-
-</div>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>The Boruta algorithm relies on variable importance values that it repeatedly calculates by running Random Forest models on your dataset for a predefined set of predictor variables. It creates a set of random noise variables associated with each attribute by shuffling each value’s row location. After training a Random Forest model it checks the variable importance of each feature against the distribution of corresponding noise variables. With t-tests it determines whether the real predictor is significantly more important than the noise variables. If so it is confirmed as important. The algorithm runs until it has separated all of the variables or it hits a user-specified limit on the number of iterations to go through. This process is expensive and may need hours to run but it neatly separates your variables into useful subsets.</p>
 <pre class="r"><code># packages
 packages(c(&quot;tidyverse&quot;, &quot;caret&quot;, &quot;Boruta&quot;))
 
@@ -226,15 +221,15 @@ set.seed(12345)
 inTrain &lt;- createDataPartition(dd$o.failed.n, p = 0.6, list = FALSE)
 boruta.train.set &lt;- dd[inTrain, -c(1,2)]
 
-# run iterative random forrest variable importance test
+# run iterative random forest variable importance test
 boruta.train &lt;- Boruta(o.failed ~ ., data = train, doTrace = 2)
 # get final decision
 fd &lt;- boruta.train$finalDecision
-
-# generate a list of non-useful variables
 rejected_vars &lt;- fd[which(fd != &quot;Confirmed&quot;)] %&gt;% names</code></pre>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
-<pre class="r"><code>print(rejected_vars)</code></pre>
+<p>The algorithm determines which variables normalize to have no impact. We can look at these rejected variables:</p>
+<pre class="r"><code># generate a list of non-useful variables
+# get final decision
+print(rejected_vars)</code></pre>
 <pre><code>##  [1] &quot;e.avgDists.repOfAll.n10&quot; &quot;bere.4&quot;                 
 ##  [3] &quot;bere.5&quot;                  &quot;bere.6&quot;                 
 ##  [5] &quot;bere.7&quot;                  &quot;priorityde.1&quot;           
@@ -242,7 +237,7 @@ rejected_vars &lt;- fd[which(fd != &quot;Confirmed&quot;)] %&gt;% names</code></
 ##  [9] &quot;numFailTypes.5&quot;          &quot;numViol.3&quot;              
 ## [11] &quot;numViol.4&quot;               &quot;numViol.5&quot;              
 ## [13] &quot;prevFail.5&quot;              &quot;prevFail.6&quot;</code></pre>
-<p>and the variables that were accepted:</p>
+<p>and then the variables that were accepted:</p>
 <pre><code>##  [1] &quot;o.failed.n&quot;             &quot;s.sinceLastInsp&quot;       
 ##  [3] &quot;s.sinceViolation&quot;       &quot;s.sinceAdded&quot;          
 ##  [5] &quot;e.avgDists.all.n5&quot;      &quot;e.avgDists.nr.n5&quot;      
@@ -271,7 +266,17 @@ rejected_vars &lt;- fd[which(fd != &quot;Confirmed&quot;)] %&gt;% names</code></
 ## [51] &quot;violTpe.4&quot;              &quot;violTpe.5&quot;             
 ## [53] &quot;violTpe.6&quot;              &quot;violTpe.7&quot;             
 ## [55] &quot;violTpe.8&quot;</code></pre>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>Now we have a list of variables that we want to include as predictors when building the model.</p>
+</div>
+<div id="variable-importance" class="section level2">
+<h2>Variable Importance</h2>
+<p>We are jumping ahead a little bit here, but let’s look at the variable importance from the Random Forest and Gradient Boosting Machine models we will create in the next section.</p>
+<div class="figure">
+<img src="plots/fig.x-Variable_importance_plot.svg" />
+
+</div>
+<p>Interestingly, the importance of some variables varied slightly between the RF and GBM models. However, for the most part, the most powerful predictors carried over from model to model. The categorical inspection description variables, as well our time series predictors proved to be most important.</p>
+<p>I the <a href="model-selection.html">next section</a> we experiment with different machine learning algorithms and select a final model.</p>
 </div>
 
 

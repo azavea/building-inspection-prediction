@@ -206,19 +206,6 @@ $(document).ready(function () {
 
 
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
-<div id="load-and-wrangle-data" class="section level2">
-<h2>Load and wrangle data</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
-<pre class="r"><code># packages
-packages(c(&quot;tidyverse&quot;, &quot;data.table&quot;, &quot;sp&quot;, &quot;caret&quot;, &quot;plyr&quot;, &quot;pROC&quot;, &quot;statmod&quot;,
-           &quot;h2o&quot;, &quot;Boruta&quot;))
-
-# baseline accuracy
-baseline &lt;- round(max(table(ds$o.failed.n)) / nrow(ds), 2)
-print(paste0(&quot;Baseline Accuracy: &quot;, baseline))</code></pre>
-<pre><code>## [1] &quot;Baseline Accuracy: 0.57&quot;</code></pre>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
-</div>
 <div id="partition-dataset" class="section level2">
 <h2>Partition Dataset</h2>
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
@@ -414,16 +401,8 @@ rf_results &lt;- get_from_grid(&quot;rf.tune.grid&quot;, valid.h2o)
 rf_mod &lt;- rf_results$fit.rf.tuned.h2o
 save(rf_mod, file = &quot;output/rf_final_mod.Rdata&quot;)</code></pre>
 </div>
-<div id="variable-importance" class="section level2">
-<h2>Variable Importance</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
-<div class="figure">
-<img src="plots/fig.x-Variable_importance_plot.svg" />
-
-</div>
-</div>
-<div id="ensemble-multiple-models" class="section level2">
-<h2>Ensemble Multiple Models</h2>
+<div id="ensemble-model" class="section level2">
+<h2>Ensemble Model</h2>
 <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
 <pre class="r"><code># Combine prediction results from each algorithm with original dataset
 results &lt;- valid %&gt;%

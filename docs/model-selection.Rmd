@@ -2,44 +2,10 @@
 title: "Model Selection"
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada
-purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a
-convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius
-varius neque.
-
-## Load and wrangle data
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada
-purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a
-convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius
-varius neque.
-
-```{r eval=TRUE, echo=FALSE}
-load("../data/full_dataset_for_modeling.Rdata")
-source("../R/helper-functions.R")
-```
-
-```{r eval=TRUE}
-
-# packages
-packages(c("tidyverse", "data.table", "sp", "caret", "plyr", "pROC", "statmod",
-           "h2o", "Boruta"))
-
-# baseline accuracy
-baseline <- round(max(table(ds$o.failed.n)) / nrow(ds), 2)
-print(paste0("Baseline Accuracy: ", baseline))
-
-```
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada
-purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a
-convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius
-varius neque.
+After compiling a large dataset, engineering a diverse set of features, and separating important from unimportant variables, the next step is test a variety of different models. However, before training models, we needed to partition our dataset in training and test sets.
 
 ## Partition Dataset
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada
-purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a
-convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius
-varius neque.
+We randomly subset the data, allocating 60% of the inspections to the training set and the remaining 40% to the 
 
 ```{r eval=FALSE}
 
@@ -269,15 +235,7 @@ save(rf_mod, file = "output/rf_final_mod.Rdata")
 
 ```
 
-##Variable Importance
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada
-purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a
-convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius
-varius neque.
-
-![](plots/fig.x-Variable_importance_plot.svg)
-
-##Ensemble Multiple Models
+##Ensemble Model
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada
 purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a
 convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius
@@ -302,3 +260,5 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada
 purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a
 convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius
 varius neque.
+
+We will look over the model's predicitons on out-of-sample data in the [next section](results.html).

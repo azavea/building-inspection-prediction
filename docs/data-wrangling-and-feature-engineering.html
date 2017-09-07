@@ -205,10 +205,31 @@ $(document).ready(function () {
 </div>
 
 
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
-<div id="load-and-wrangle-data" class="section level2">
-<h2>Load and wrangle data</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>The objective of this project was to create a tool that would allow inspectors to prioritize the buildings that they visited. This is a multi-faceted problem because many different events trigger several different types of inspections. Â A robust tool may make different predictions for inspections in response to 311 calls vs. new construction vs. random surveys. In the interest of time and simplicity, we took aim at one specific aspect of this broader objective. We built a model that predicts the likelihood that a building will fail a follow-up inspection after it has already failed in the past. This means that we limited the scope of our analysis to buildings that already had a “case” in the inspection system.</p>
+<div class="figure">
+<img src="plots/fig.x-Map_of_fails_and_passes.svg" />
+
+</div>
+<div id="datasets" class="section level2">
+<h2>Datasets</h2>
+<p>For this model we used data from The City of Philadelphia’s Department of Licenses and Inspections. Philadelphia makes all of it’s L&amp;I data available through the City’s Open Data Site, making it an excellent city to use to train the model. To keep the data manageable, we limited it to inspection outcomes from the past 3+ years (2014-2017).Â The L&amp;I data is stored in a relational database comprised of several datasets that record inspection outcomes at different levels. These levels include:</p>
+<ul>
+<li>locations (every inspection and outcome that occurs at a given address)</li>
+<li>cases (a whole cycle of inspections at a given location starting with the initial inspection and ending with compliance)</li>
+<li>inspections (each of the individual times that an inspector visited a case)</li>
+<li>violations (itemized descriptions of each of the ways that a building doesn’t comply with the code)</li>
+</ul>
+<p>This chart shows the breakdown of the total number of each type of record over the study period.</p>
+<div class="figure">
+<img src="plots/fig.x-Levels-of-data-bar-charts.svg" />
+
+</div>
+<p>These numbers indicate the count of each type after we had cleaned the data and removed records in which the inspector wasn’t able to access the building.</p>
+</div>
+<div id="data-wrangling" class="section level2">
+<h2>Data Wrangling</h2>
+<p>Compiling these data and summarizing them to the inspection-level required some significant data wrangling. We first joined the violation and inspection datasets on a unique ID. After that we needed to do some basic data cleaning and remove some rows that were not applicable.</p>
+<p><em>Note: Many of these code snippets call helper functions (e.g. <code>filterData()</code>) that I wrote for this project. You can find these functions <a href="https://github.com/azavea/building-inspection-prediction/blob/master/R/helper-functions.R">here</a>.</em></p>
 <pre class="r"><code># packages
 packages(c(&quot;tidyverse&quot;, &quot;data.table&quot;, &quot;sp&quot;, &quot;rgdal&quot;, &quot;lubridate&quot;, &quot;plyr&quot;,
   &quot;forcats&quot;, &quot;caret&quot;, &quot;spatstat&quot;, &quot;RCurl&quot;, &quot;jsonlite&quot;))
@@ -229,26 +250,117 @@ full_dat &lt;- cleanData(full_dat)
 
 # filter the data frame
 #   remove some NA fields, closed inspections
-filtered_dat &lt;- filterData(full_dat)
+filtered_dat &lt;- filterData(full_dat)</code></pre>
+<p>After joining the datasets we needed to create variables that measure the relationships among each inspection and the other inspections in it’s L&amp;I case. Though the dataset does come with a unique case identifier, it describes each inspection independently of other inspections in that case. Therefore, we needed to develop a process for iterating through the entire dataset, sequencing the inspection events in each case, measuring the time between events, and extrapolating them back to the main dataset.</p>
+<pre class="r"><code>measureFails &lt;- function(dat, row){
+  # Given a row, loop through the dataset measuring the outcomes before
+  # and after this point
+  #
+  # Args:
+  #   dat: data.table object containing the measurment row
+  #   row: the index of the row
+  #
+  # Returns:
+  #   a data.table of pre- and post- inspection outcomes
+  #
 
-# associate each inspection with other inspections in its case
-#   measure outcomes of the same case before and after the inspection
-#     in question
-filtered_dat &lt;- measureAllFails(filtered_dat)
+  dat &lt;- data.table(dat)
 
-# remove the initial inspection instances
+  r.t &lt;- dat[row, c(&#39;uid&#39;, &#39;casenumber&#39;, &#39;apfailkey&#39;,
+                    &#39;inspCompl&#39;, &#39;inspStatus&#39;, &#39;violDte&#39;)]
+
+  subdat &lt;- dat[casenumber == r.t$casenumber &amp; apfailkey == r.t$apfailkey,
+                c(&#39;uid&#39;, &#39;casenumber&#39;, &#39;apfailkey&#39;,
+                  &#39;inspCompl&#39;, &#39;inspStatus&#39;, &#39;violDte&#39;)]
+
+  fails &lt;- data.table(uid = r.t$uid, before = 0, after = 0,
+                      rec.inspCompl = &#39;none&#39;, rec.inspStatus = &#39;none&#39;,
+                      rec.uid = &quot;none&quot;)
+
+  for (r in 1:nrow(subdat)) {
+
+    r.m &lt;- subdat[r, ]
+
+    # if the test insp date is after the reference insp. date
+    if (!is.na(as.Date(r.m$inspCompl)) &amp;&amp; !is.na(as.Date(r.t$inspCompl))) {
+
+      if (r.t$inspCompl &gt; r.m$inspCompl) {
+
+        if (class(fails$rec.inspCompl) != &quot;Date&quot;) {
+
+          # update the &quot;recent&quot; variables
+          fails$rec.uid &lt;- r.m$uid
+          fails$rec.inspStatus &lt;- r.m$inspStatus
+          fails$rec.inspCompl &lt;- r.m$inspCompl
+
+          if (r.m$inspStatus == &quot;Failed&quot;) {
+
+            fails$before &lt;- fails$before + 1
+
+          }
+        } else if (fails$rec.inspCompl &lt; r.m$inspCompl) {
+
+          # update the &quot;recent&quot; variables
+          fails$rec.uid &lt;- r.m$uid
+          fails$rec.inspStatus &lt;- r.m$inspStatus
+          fails$rec.inspCompl &lt;- r.m$inspCompl
+
+          if (r.m$inspStatus == &quot;Failed&quot;) {
+            fails$before &lt;- fails$before + 1
+          }
+        }
+      } else if (r.t$inspCompl &lt; r.m$inspCompl &amp;&amp; r.m$inspStatus == &quot;Failed&quot;) {
+
+        fails$after &lt;- fails$after + 1
+
+      }
+    }
+  }
+  return(fails)
+}
+
+measureAllFails &lt;- function(dat) {
+  # Apply the measurefails function over every row, combining infot a
+  # data frame and binding to the original df
+  #
+  # Args:
+  #   dat: the data frame to measure
+  #
+  # Returns:
+  #   a new data frame with recent inspection data merged to it
+  #
+  # Side effects:
+  #    Prints a progress text bar
+  #    saves an Rdata file of the resulting dataet to the outpur folder
+  #
+
+  # loop over whole dataset
+  rec &lt;- ldply(c(1:nrow(dat)), measureFails, dat = dat, .progress = &quot;text&quot;)
+
+  # merge recents with original df
+  df_rec &lt;- merge(dat, rec, by = &quot;uid&quot;)
+
+  # save the dataset to output file
+  saveTimeStampedFile(df_rec, file = &quot;lni_15to17_withRecent&quot;, time = FALSE)
+
+  return(df_rec)
+}
+
+# call functions on entire dataset
+filtered_dat &lt;- measureAllFails(filtered_dat)</code></pre>
+<p>This data pre-processing step may seem tedious but the resulting variables would prove to be some our most important predictors.</p>
+<p>We continued to filter our dataset down to a more manageable size by removing the each row that corresponded to the initial inspection in each case. Predicting outcomes for these inspections was outside of the scope of this model.</p>
+<pre class="r"><code># remove the initial inspection instances
 df &lt;- filtered_dat %&gt;%
   filter(rec.inspStatus != &quot;none&quot;) %&gt;%
   filter(as.Date(violDte) &lt; as.Date(inspCompl)) %&gt;%
   data.table() %&gt;%
   .[, c(&quot;organizati&quot;, &quot;unit&quot;, &quot;apdesc&quot;, &quot;aptype&quot;) := NULL] %&gt;%
   na.omit()</code></pre>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
 </div>
 <div id="feature-engineering" class="section level2">
 <h2>Feature Engineering</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>Feature Engineering proved to be an important aspect of this model. In some cases we used domain knowledge and intuition to manually create new attributes that we believed would be predictive of inspection outcome. We used the dates that we obtained in the previous section to create new “duration” variables that told us about the gaps of time between the date of the inspection and previous events in that case:</p>
 <pre class="r"><code># create additional variables
 df$zipShort &lt;- substr(df$zip, 1, 5) %&gt;% as.factor()
 df$failed &lt;- ifelse(df$inspStatus == &quot;Failed&quot;, 1, 0)
@@ -257,11 +369,13 @@ df$before &lt;- as.factor(df$before)
 # add 3 variables indicating durations from previous events in lifecycle of
 #   building case
 df &lt;- durationVars(df)</code></pre>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>The following plot gives us a good indication of the value of the resulting variable.</p>
 <div class="figure">
 <img src="plots/fig.x-Joy_plots.svg" />
 
 </div>
+<p>It shows the relative distributions of two different time-based dependent variables for inspections that resulted in a failure and for those that didn’t. The areas in which the density curves diverge indicate where we are able to get predictive power from. For example cases that had gone fewer that 25 or more than ~65 days since an inspection were more likely to end passing their inspections.</p>
+<p>At this point we’re working with a dataset at the violation level. This means that there may be several rows that pertain to one inspection event. Before condensing the dataset to the inspection level, we needed to make sure we saved the information about which individual violations were found upon each inspection:</p>
 <pre class="r"><code># extract &#39;violation type&#39; variable and remove levels occurring &lt; 0.02%
 #   of the time
 df_violTpe  &lt;- df %&gt;%
@@ -276,37 +390,16 @@ violType_lookup &lt;- getFactorLevelLookup(df_violTpe$violTpe, &quot;violTpe&quo
 # encode violation-type categorical feature as a series of binary
 #   numeric dummy variables
 df_violTpe &lt;- castAndSumm(df_violTpe, &quot;id.apinspkey&quot;, &quot;violTpe&quot;, binary = FALSE)</code></pre>
-<div class="figure">
-<img src="plots/fig.x-Levels-of-data-bar-charts.svg" />
-
-</div>
+<p>Then group by a unique inspection identifier and summarize our variables:</p>
 <pre class="r"><code># collapse dataset to the inspection level, summarizing
 ds &lt;- summariseInspections(df)</code></pre>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
-<div class="figure">
-<img src="plots/fig.x-Map_of_fails_and_passes.svg" />
-
-</div>
-<pre class="r"><code># measure for spatial autocorrelation among repeat violators
-ds &lt;- endogMain(ds, nlist = c(5, 10))
-
-# remove infrequently occuring categorical variables
-ds$f.inspDesc &lt;- fct_lump(ds$f.inspDesc, prop = 0.02)
-ds$f.recStatus &lt;- fct_lump(ds$f.recStatus, prop = 0.02)
-
-# miscellaneous feature engineering
-ds &lt;- ds %&gt;%
-  mutate(f.numFailTypes = as.factor(squishToRange(e.numFailTypes))) %&gt;%
-  mutate(f.numViol = as.factor(squishToRange(e.numViol))) %&gt;%
-  mutate(f.prevFail = as.factor(squishToRange(e.prevFail))) %&gt;%
-  select(-e.numFailTypes, -e.numViol, -e.prevFail) %&gt;%
-  filter(is.finite(e.avgDists.repOfAll.n5))</code></pre>
+<p>We also created additional variables that would account for spatial autocorrelation among the independent variable. These variables measured the average distances to the n nearest instances of repeat or non-repeat failure buildings. However, we did some independent tests that did not find any spatial autocorrelation among the dependent variable. When we finally built models we found that these distance variables were only marginally important predictors of inspection outcomes.</p>
 </div>
 <div id="external-data-sources" class="section level2">
 <h2>External Data Sources</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
-<pre class="r"><code># vacant property indicators
-# read dataset
+<p>Up until this point, all of our variables we created were either included in one of the two Licenses and Inspections datasets or we derived them from out-of-the-box L&amp;I features. Our next step was to incorporate some data from external sources.</p>
+<p>Building inspection failure is often linked to vacancy so we tried gathering information from the City’s <a href="https://www.opendataphilly.org/dataset/vacant-property-indicators">Vacant Property Indicators dataset</a>. We created two different dummy variables that indicated whether or not we found the building’s address and/or owner in the vacancy database.</p>
+<pre class="r"><code># read dataset
 vpi &lt;- read.csv(&quot;http://data.phl.opendata.arcgis.com/datasets/f7ed68293c5\
                 e40d58f1de9c8435c3e84_0.csv&quot;, stringsAsFactors = TRUE)
 
@@ -319,11 +412,9 @@ ds$f.vpi.isBldgAddkey &lt;- ifelse(
 ds$f.vpi.isOwner &lt;- ifelse(
   ds$l.owner %in% vpi$OWNER1, 1, ifelse(ds$l.owner %in% vpi$OWNER2, 1, 0)
   ) %&gt;%
-  as.factor()
-
-
-# tax delinquency dataset
-# encode and format api call
+  as.factor()</code></pre>
+<p>The other external data that we included were <a href="https://www.opendataphilly.org/dataset/property-tax-balances">Property Tax Balances</a> from the Philadelphia Department of Revenue. Much like vacancy, tax delinquency is often associated with building inspection so we believed that this would be a useful dataset to include. We pulled in data from the tax balance api and created new variables by joining to our main dataset:</p>
+<pre class="r"><code># encode and format api call
 url &lt;- URLencode(&quot;https://data.phila.gov/carto/api/v2/sql?q=SELECT owner,\
                  total FROM real_estate_tax_balances WHERE total &gt; 0 AND \
                  tax_period &gt; 2015 AND owner != &#39;&#39;&quot;)
@@ -353,7 +444,7 @@ ds &lt;- cbind(ds, ds.temp)</code></pre>
 </div>
 <div id="dealing-with-categorical-variables" class="section level2">
 <h2>Dealing with categorical variables</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>Some of the machine learning models that we used in the next section required that all of the predictor variables be numeric. Of course, some of our variables were categorical (e.g. the type of inspection or the binary distinction of whether or not the building was tax delinquent). We got around this issue by using one-hot-encoding. <a href="https://twitter.com/chrisalbon">Chris Albon</a> helps illustrate this concept in one of his terrific <a href="https://machinelearningflashcards.com/">machine learning flashcards</a>:</p>
 <div class="embedded-tweet">
 <blockquote class="twitter-tweet" data-partner="tweetdeck">
 <p lang="en" dir="ltr">
@@ -363,7 +454,7 @@ One-Hot Encoding <a href="https://twitter.com/hashtag/machinelearningflashcards?
 </blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 </div>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>For each category in each categorical variable, we created a new binary numeric attribute indicating whether it applied to each row:</p>
 <pre class="r"><code># get list of factor variable names
 names &lt;- ds %&gt;%
   select(starts_with(&quot;f.&quot;)) %&gt;%
@@ -395,7 +486,8 @@ mod_vars &lt;- ds %&gt;% select(
   -starts_with(&quot;l.&quot;), -starts_with(&quot;f.&quot;)) %&gt;%
   names
 non_mod_vars &lt;- setdiff(names(ds), mod_vars)</code></pre>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>This process dramatically increased the number of features in our dataset but it gave us the option to include all of our variables into any model.</p>
+<p>In the next section we will walk through our process for separating predictively important features from non-important ones.</p>
 </div>
 
 
