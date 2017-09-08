@@ -323,6 +323,4 @@ non_mod_vars <- setdiff(names(ds), mod_vars)
 
 ```
 
-This process dramatically increased the number of features in our dataset but it gave us the option to include all of our variables into any model.
-
-In the [next section](feature-selection.html) we will walk through our process for separating predictively important features from non-important ones. 
+This process dramatically increased the number of features in our dataset but it gave us the option to include all of our variables into any model. In the [next section](feature-selection.html) we will walk through our process for separating predictively important features from non-important ones. 

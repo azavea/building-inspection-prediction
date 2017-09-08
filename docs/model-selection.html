@@ -205,10 +205,10 @@ $(document).ready(function () {
 </div>
 
 
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>After compiling a large dataset, engineering a diverse set of features, and separating important from unimportant variables, the next step is test a variety of different models. However, before training models, we needed to partition our dataset in training and test sets.</p>
 <div id="partition-dataset" class="section level2">
 <h2>Partition Dataset</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>We randomly subset the data, allocating 60% of the inspections to a training set and the remaining 40% to a test set:</p>
 <pre class="r"><code># remove rejected vars
 d &lt;- ds %&gt;%
   select(-one_of(rejected_vars))
@@ -221,18 +221,23 @@ valid &lt;- d[-inTrain, ]
 
 # list of predictor variables
 pred_vars &lt;- setdiff(names(d), c(non_mod_vars, &quot;o.failed.n&quot;, &quot;o.failed.f&quot;))</code></pre>
+<p>When training the data, we used repeatedÂ cross-validationÂ to train each model on the training set. This means that each time we trained a model, we repeatedly subset our data into smaller train-test categories, and averaged the results to get goodness of fit metrics that helped us evaluate the model. Once we settled on final models, we used them to predict for the 40% test set. This is important because the test set is made of data that the model “had not seen.” If our goodness-of-fit metrics were worse on the test set than they were in training, this would be an indication that the model was overfit.</p>
 </div>
 <div id="h2o" class="section level2">
 <h2>H2O</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>We built all of our models for this project using <a href="https://www.h2o.ai/">h2o</a>. H2O is a free, open-source, machine learning platform. H2O makes it possible to run a number of different machine learning algorithms on a Java virtual machine. It creates multi-node clusters which enable you train machine learning models much faster than you would be able to otherwise. Before loading any data or training models, you need to initialize an h2o cluster:</p>
 <pre class="r"><code># initialize h2o cluster
-localhost &lt;- h2o.init(nthreads = -1, max_mem_size = &quot;8G&quot;)
-
-# open flow in web browser
+localhost &lt;- h2o.init(nthreads = -1, max_mem_size = &quot;8G&quot;)</code></pre>
+<p>H2O maintains APIs for R, Python and Scala. Using the R bindings, we are able to easily transition between normal R functionality and high-performance h2o modeling within an R script. In addition to its APIs, h2o has a GUI called “Flow” that runs in a web browser. You can open view it by simply pointing your browser at the appropriate port. The resulting dashboard comes in handy for quickly and easily viewing training results from h2o models.</p>
+<pre class="r"><code># open flow in web browser
 paste0(&quot;start http://localhost:&quot;, localhost@port) %&gt;%
-  shell()
+  shell()</code></pre>
+<div class="figure">
+<img src="images/h2o.jpg" />
 
-# load data into h2o
+</div>
+<p>Once you’ve initialized a cluster, you can simply convert an R data frame to an h2o frame using the <code>as.h2o()</code> function. You can then use these new frames as inputs to build h2o machine learning models.</p>
+<pre class="r"><code># load data into h2o
 d.h2o &lt;- as.h2o(d)
 train.h2o &lt;- as.h2o(train)
 valid.h2o &lt;- as.h2o(valid)
@@ -248,18 +253,18 @@ search.criteria &lt;- list(
 # subset variables into different categories
 fact_vars &lt;- getVarNames(names(train.h2o), &quot;f.&quot;)
 vi_vars &lt;- getVarNames(names(train.h2o), &quot;vi&quot;)
-cont_vars &lt;- getVarNames(pred_vars, c(&quot;s.&quot;))
-
-# extract only one spatial var to avoid multicollinearity
-glm_pred_vars &lt;- c(fact_vars, cont_vars, vi_vars, &quot;e.avgDists.rep.n10&quot;)
-
-# specify alpha values
-alphas &lt;- seq(0, 1, 0.1)</code></pre>
+cont_vars &lt;- getVarNames(pred_vars, c(&quot;s.&quot;))</code></pre>
 </div>
 <div id="logistic-regression" class="section level2">
 <h2>Logistic Regression</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
-<pre class="r"><code># Parameter tuning:
+<p>The first and least powerful model we tried was the logistic regression (glm). This model uses a “link” function to implement a linear model for a binary outcome. As opposed to the latter two models, the glm model can take categorical variables. Therefore we needed to specify a set of predictors that included the original factor variables as opposed to the one-hot encoded numerical features that we created in the feature engineering section. The logistic regression is good because it is fast and simple. It does not have many hyper-parameters to tune. In this case, the only hyper-parameter that we tuned was the <code>alpha</code> value. This hyper-parameter controls the regularization penalty in the model. We performed a hyper-parameter “grid” search for alpha. However, “grid” in this case is slightly misleading given that we were searching over an only one-dimensional vector of alpha values.</p>
+<pre class="r"><code># extract only one spatial var to avoid multicollinearity
+glm_pred_vars &lt;- c(fact_vars, cont_vars, vi_vars, &quot;e.avgDists.rep.n10&quot;)
+
+# specify alpha values
+alphas &lt;- seq(0, 1, 0.1)
+
+# Parameter tuning:
 glm.tune.grid &lt;- h2o.grid(
   algorithm = &quot;glm&quot;,
   hyper_params = list(alpha = alphas),
@@ -279,10 +284,48 @@ glm_results &lt;- get_from_grid(&quot;glm.tune.grid&quot;, valid.h2o)
 # save results
 glm_mod &lt;- glm_results$fit.glm.tuned.h2o
 save(glm_mod, file = &quot;output/glm_final_mod.Rdata&quot;)</code></pre>
+<pre class="r"><code>load(&quot;../output/data/glm_final_mod.Rdata&quot;)</code></pre>
+<pre class="r"><code># summary
+glm_mod@model$model_summary</code></pre>
+<pre><code>## GLM Model: summary
+##     family  link                                 regularization
+## 1 binomial logit Elastic Net (alpha = 0.25, lambda = 2.367E-4 )
+##                                                                     lambda_search
+## 1 nlambda = 100, lambda.max = 0.1594, lambda.min = 2.367E-4, lambda.1se = 0.00167
+##   number_of_predictors_total number_of_active_predictors
+## 1                         60                          48
+##   number_of_iterations training_frame
+## 1                  100          train</code></pre>
+<p>We used AUC as the criteria for choosing an optimal model during the hyper-parameter search. This means that the iteration with the highest AUC occurred on an elastic net model with an alpha value of 0.25.</p>
+<pre class="r"><code># cross validation metrics
+head(glm_mod@model$cross_validation_metrics_summary)</code></pre>
+<pre><code>## Cross-Validation Metrics Summary: 
+##                 mean           sd cv_1_valid cv_2_valid cv_3_valid
+## accuracy   0.6360638  0.014634479 0.62089276 0.61272216  0.6720799
+## auc        0.7356134 0.0061625033  0.7285895  0.7212438  0.7515902
+## err        0.3639362  0.014634479 0.37910727 0.38727784 0.32792005
+## err_count     1164.4    48.227795     1223.0     1242.0     1050.0
+## f0point5  0.59301764   0.01118286  0.5873016  0.5732484  0.6162297
+## f1         0.6757899 0.0049606967  0.6792552  0.6666667  0.6833534
+##           cv_4_valid cv_5_valid cv_6_valid cv_7_valid cv_8_valid
+## accuracy  0.62701863 0.64358896  0.6100548 0.64715344  0.6543512
+## auc         0.734209 0.72699094  0.7403797 0.74182355  0.7344172
+## err       0.37298137 0.35641104  0.3899452 0.35284656 0.34564885
+## err_count     1201.0     1148.0     1210.0     1097.0     1132.0
+## f0point5  0.58724064 0.59767514  0.5748353  0.6105295 0.60343045
+## f1         0.6815168 0.66935486  0.6719089 0.68861765  0.6735871
+##           cv_9_valid cv_10_valid
+## accuracy   0.6580523   0.6147239
+## auc       0.74527806  0.73161197
+## err       0.34194767  0.38527608
+## err_count     1085.0      1256.0
+## f0point5  0.60878885  0.57089657
+## f1        0.67679477   0.6668435</code></pre>
+<p>The second output shows model performance metrics across each of the 10 cv folds. The low AUC standard deviation (0.006) indicates that the model performed consistently across many random samples and that we were not overfitting the training data.</p>
 </div>
 <div id="logistic-regression-with-interaction-terms" class="section level2">
 <h2>Logistic Regression with Interaction Terms</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus.</p>
+<p>One of the shortcomings of a logistic regression model (at least as compared to the tree-based models we’ll discuss later on), is that it does not automatically incorporate interaction among predictor variables. One way to add this element to a glm model is to use interaction terms. Here’s another of Chris Albon’s flashcards to tell us about them.</p>
 <div class="embedded-tweet">
 <blockquote class="twitter-tweet" data-partner="tweetdeck">
 <p lang="en" dir="ltr">
@@ -292,7 +335,8 @@ Interaction Term <a href="https://twitter.com/hashtag/machinelearningflashcards?
 </blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 </div>
-<p>Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>Interaction terms allow you to account for the predictive effect of two different categorical features occurring in conjunction. For example, if the combination of inspections that were high priority and also had a previous exterior violation were particularly likely to fail, and interaction term could pick up that signal.</p>
+<p>We interacted all of our categorical variables to create new interaction features. We then regressed them onto failure outcomes and removed the variables that proved not to be significant:</p>
 <pre class="r"><code># get interaction variables for train/test sets
 pairwise &lt;- getInteractionVars(train.h2o, realf, bind = FALSE)
 int_train &lt;- h2o.cbind(train.h2o, pairwise)
@@ -326,10 +370,12 @@ all_glm_results &lt;- llply(all_glm_mods, getPredictions, validation_frame = int
          vote_pred = ifelse(vote &gt; 2, 1, 0),
          correct = ifelse(vote_pred == result, 1, 0),
          mean_vote = (glm.p1 + glm_cont.p1 + glm_factor.p1 + glm_interaction.p1) / 4)</code></pre>
+<p>We tried several different ensembles of glm models with interaction terms but found that adding these variables only slightly improved performance over the baseline logistic regression.</p>
 </div>
 <div id="gradient-boosting-machine" class="section level2">
 <h2>Gradient Boosting Machine</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>After running training a logistic regression model, we moved on two try out two different decision tree-based algorithms. The first of these was a Gradient Boosting Machine (GBM) model. This is an ensemble method, meaning it combines the outputs of a number of different decision trees. It fits a series of deeper learners to the data and then goes “deeper” by fitting additional trees to the residuals. This technique makes it possible to pick up patterns in the data that the logistic regression is unable. However, it also makes it much easier to overfit to the training data.</p>
+<p>You can avoid overfitting by tuning hyper-parameters such as <code>max_depth</code>, which controls the maximum number of nodes allowed in any decision tree within the model. We created a hyper-parameter grid that included sample rate (<code>sample_rate</code>), column sample rate (<code>col_sample_rate</code>), and learning rate (<code>learn_rate</code>) in addition to tree depth.</p>
 <pre class="r"><code># Tuned parameters:
 # define hyperparameter grid
 gbm.grid &lt;- list(
@@ -361,10 +407,44 @@ gbm_results &lt;- get_from_grid(&quot;gbm.tune.grid&quot;, valid.h2o)
 # save results
 gbm_mod &lt;- gbm_results$fit.gbm.tuned.h2o
 save(gbm_mod, file = &quot;output/gbm_final_mod.Rdata&quot;)</code></pre>
+<pre class="r"><code>load(&quot;../output/data/gbm_final_mod.Rdata&quot;)</code></pre>
+<p>Again, we used AUC as a criteria for determining the best model. Note the optimal hyper-parameters below:</p>
+<pre class="r"><code># summary
+gbm_mod@model$model_summary</code></pre>
+<pre><code>## Model Summary: 
+##   number_of_trees number_of_internal_trees model_size_in_bytes min_depth
+## 1              50                       50              131441         9
+##   max_depth mean_depth min_leaves max_leaves mean_leaves
+## 1         9    9.00000        132        261   203.34000</code></pre>
+<pre class="r"><code># cross validation metrics
+head(gbm_mod@model$cross_validation_metrics_summary)</code></pre>
+<pre><code>## Cross-Validation Metrics Summary: 
+##                 mean           sd cv_1_valid cv_2_valid cv_3_valid
+## accuracy   0.7391289 0.0056790602  0.7457088 0.72852564 0.72718865
+## auc        0.8308193  0.005383511 0.83779454    0.82198  0.8156566
+## err       0.26087108 0.0056790602 0.25429118 0.27147436 0.27281135
+## err_count      834.6      18.5154      800.0      847.0      885.0
+## f0point5    0.677785  0.007816585  0.6870852  0.6684205  0.6582403
+## f1         0.7494119 0.0064828014  0.7594708  0.7461792 0.73108476
+##           cv_4_valid cv_5_valid cv_6_valid cv_7_valid cv_8_valid
+## accuracy  0.74731016  0.7388455 0.73933065 0.74595267  0.7487654
+## auc       0.84091336 0.83403575 0.82783425 0.83452064  0.8299745
+## err       0.25268984 0.26115444 0.26066932 0.25404733 0.25123456
+## err_count      822.0      837.0      849.0      816.0      814.0
+## f0point5   0.6886549 0.67264324 0.68167406  0.6789983  0.6981271
+## f1         0.7572357 0.74505025 0.75240594 0.74515927  0.7652826
+##           cv_9_valid cv_10_valid
+## accuracy  0.74201787  0.72764355
+## auc       0.83906615   0.8264171
+## err       0.25798213  0.27235645
+## err_count      808.0       868.0
+## f0point5   0.6754632   0.6685429
+## f1         0.7485999   0.7436503</code></pre>
+<p>With an mean auc value of 0.83, the best GBM model proved to be significantly better at predicting inspection outcomes than the logistic regression.</p>
 </div>
 <div id="random-forest" class="section level2">
 <h2>Random Forest</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>The other decision tree model that we tried was a Random Forest (RF). Random forest models are very popular due to their combination of flexibility and strong predictive power. Let’s take one more look at one more machine learning flashcard to get a sense of how random forest models work for classification problems like the one we’re working with now.</p>
 <div class="embedded-tweet">
 <blockquote class="twitter-tweet" data-lang="en">
 <p lang="en" dir="ltr">
@@ -374,7 +454,7 @@ Random Forest Classification <a href="https://twitter.com/hashtag/machinelearnin
 </blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 </div>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>The RF model selects a series of random subsets of predictor variables and uses them to build individual decision trees. The decision trees then vote on a predicted outcome. As we did for the GLM and GBM models, we used a hyper-parameter grid search method to tune the maximum depth (<code>max_depth</code>) and number of trees (<code>ntrees</code>) parameters.</p>
 <pre class="r"><code>rf.grid &lt;- list(
   max_depth = seq(15, 30, 45),
   ntrees = c(10, 25, 50)
@@ -400,10 +480,44 @@ rf_results &lt;- get_from_grid(&quot;rf.tune.grid&quot;, valid.h2o)
 # save results
 rf_mod &lt;- rf_results$fit.rf.tuned.h2o
 save(rf_mod, file = &quot;output/rf_final_mod.Rdata&quot;)</code></pre>
+<pre class="r"><code>load(&quot;../output/data/rf_final_mod.Rdata&quot;)</code></pre>
+<p>Again, we used AUC as a criteria for determining the best model. Note the optimal hyper-parameters below:</p>
+<pre class="r"><code># summary
+rf_mod@model$model_summary</code></pre>
+<pre><code>## Model Summary: 
+##   number_of_trees number_of_internal_trees model_size_in_bytes min_depth
+## 1              25                       50              928743        15
+##   max_depth mean_depth min_leaves max_leaves mean_leaves
+## 1        15   15.00000       1145       1896  1470.90000</code></pre>
+<pre class="r"><code># cross validation metrics
+head(gbm_mod@model$cross_validation_metrics_summary)</code></pre>
+<pre><code>## Cross-Validation Metrics Summary: 
+##                 mean           sd cv_1_valid cv_2_valid cv_3_valid
+## accuracy   0.7391289 0.0056790602  0.7457088 0.72852564 0.72718865
+## auc        0.8308193  0.005383511 0.83779454    0.82198  0.8156566
+## err       0.26087108 0.0056790602 0.25429118 0.27147436 0.27281135
+## err_count      834.6      18.5154      800.0      847.0      885.0
+## f0point5    0.677785  0.007816585  0.6870852  0.6684205  0.6582403
+## f1         0.7494119 0.0064828014  0.7594708  0.7461792 0.73108476
+##           cv_4_valid cv_5_valid cv_6_valid cv_7_valid cv_8_valid
+## accuracy  0.74731016  0.7388455 0.73933065 0.74595267  0.7487654
+## auc       0.84091336 0.83403575 0.82783425 0.83452064  0.8299745
+## err       0.25268984 0.26115444 0.26066932 0.25404733 0.25123456
+## err_count      822.0      837.0      849.0      816.0      814.0
+## f0point5   0.6886549 0.67264324 0.68167406  0.6789983  0.6981271
+## f1         0.7572357 0.74505025 0.75240594 0.74515927  0.7652826
+##           cv_9_valid cv_10_valid
+## accuracy  0.74201787  0.72764355
+## auc       0.83906615   0.8264171
+## err       0.25798213  0.27235645
+## err_count      808.0       868.0
+## f0point5   0.6754632   0.6685429
+## f1         0.7485999   0.7436503</code></pre>
+<p>You can see that the RF cross-validation metrics on the training set look very similar to those of the gradient boosting model. The RF average AUC value ended up slightly lower than the same metric for the GBM model, indicating that the latter was slightly better at predicting inspection outcomes.</p>
 </div>
 <div id="ensemble-model" class="section level2">
 <h2>Ensemble Model</h2>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>Our final step in the model selection process was to experiment with ensembling our various models. In this context, an ensemble is a way to combine the “wisdom” of multiple models into one. We tried two different ensembling methods: majority vote and bayesian averaging. To calculate the former, we generated binary classifications from predicted probabilities for each model, tallied up the classification “votes” and chose a winner. When working with the latter, we simply averaged averaged all of the predicted probabilities and generated binary classifications from the resulting values.</p>
 <pre class="r"><code># Combine prediction results from each algorithm with original dataset
 results &lt;- valid %&gt;%
   cbind(all_glm_results, rf_results$pred.rf, gbm_results$pred.gbm)
@@ -414,7 +528,8 @@ results &lt;- results %&gt;%
     rf.predict + gbm.predict + glm_interaction.p1 &gt; 1, 1, 0)) %&gt;%
   mutate(ensemble.p1 = (glm_interaction.p1 + rf.p1 + gbm.p1) / 3) %&gt;%
   mutate(ensemble.correct = ifelse(ensemble.predict == o.failed.n, 1, 0))</code></pre>
-<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla laoreet malesuada purus. Aliquam non odio ut erat lacinia mollis. Ut scelerisque nisi mauris, a convallis ante elementum eget. Maecenas enim nulla, suscipit ac nisl et, varius varius neque.</p>
+<p>In the end, we found that neither of these ensemble methods improved our predictive power over the standard RF and GBM models. These ensembles are useful when the sub-models predict differently for the same response variable. However, in our case the correlation between the sub-model predicted probabilities was too strong for the combination to make much of a difference.</p>
+<p>We will look over the model’s predicitons on out-of-sample data in the <a href="results.html">next section</a>.</p>
 </div>
 
 
