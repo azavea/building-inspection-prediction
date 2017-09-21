@@ -1,12 +1,21 @@
 h1 {
   font-size: 42px;
-  color: #126075;
+  color: #1C5074;
   margin-top: 50px;
   margin-bottom: 20px;
 }
 
 h2 {
-  color: #5876BF;
+  color: #3474A2;
+  font-weight: bolder;
+}
+
+h3 {
+  color: #3E8CBF;
+}
+
+h4 {
+  color: #48A5DC;
 }
 
 p {

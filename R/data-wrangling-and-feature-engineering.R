@@ -1,5 +1,5 @@
 ###########################################################################
-## PROJECT: L+I predictive modeling
+## PROJECT: Building Inspection Prediction
 ##
 ## SCRIPT PURPOSE: Feature engineering
 ##    - combine violation and inspection datasets
@@ -8,9 +8,9 @@
 ##    - create new variables from additional city datasets
 ##    - remove unnecessary fields
 ##    - export final dataset for model building
+## 
+## Azavea Data Analytics  /   www.azavea.com
 ##
-## DATE: 18 July 2017
-## AUTHOR: Simon Kassel
 ###########################################################################
 
 # helper functions 

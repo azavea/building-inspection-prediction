@@ -1,12 +1,12 @@
 ###########################################################################
-## PROJECT: L+I predictive modeling
+## PROJECT: Building Inspection Prediction
 ##
 ## SCRIPT PURPOSE: Data Visualzation
 ##    - generate data visualizations showing model input data, features
 ##      and results
+## 
+## Azavea Data Analytics  /   www.azavea.com
 ##
-## DATE: 17 August 2017
-## AUTHOR: Simon Kassel
 ###########################################################################
 
 # helper functions 

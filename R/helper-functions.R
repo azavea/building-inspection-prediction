@@ -1,11 +1,11 @@
 ###########################################################################
-## PROJECT: L+I predictive modeling
+## PROJECT: Building Inspection Prediction
 ##
 ## SCRIPT PURPOSE: Functions
 ##    - Helper functions for all scripts within the project
+## 
+## Azavea Data Analytics  /   www.azavea.com
 ##
-## DATE: 18 July 2017
-## AUTHOR: Simon Kassel
 ###########################################################################
 
 

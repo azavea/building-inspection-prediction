@@ -180,6 +180,9 @@ $(document).ready(function () {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
+  <a href="results.html">results</a>
+</li>
+<li>
   <a href="data-wrangling-and-feature-engineering.html">data preprocessing</a>
 </li>
 <li>
@@ -187,9 +190,6 @@ $(document).ready(function () {
 </li>
 <li>
   <a href="model-selection.html">model building</a>
-</li>
-<li>
-  <a href="results.html">results</a>
 </li>
       </ul>
     </div><!--/.nav-collapse -->
@@ -205,14 +205,14 @@ $(document).ready(function () {
 </div>
 
 
-<p>The objective of this project was to create a tool that would allow inspectors to prioritize the buildings that they visited. This is a multi-faceted problem because many different events trigger several different types of inspections. Â A robust tool may make different predictions for inspections in response to 311 calls vs. new construction vs. random surveys. In the interest of time and simplicity, we took aim at one specific aspect of this broader objective. We built a model that predicts the likelihood that a building will fail a follow-up inspection after it has already failed in the past. This means that we limited the scope of our analysis to buildings that already had a “case” in the inspection system.</p>
+<p>This model is meant to act as a tool for inspectors to prioritize which buildings to investigate. Specifically, we wanted to figure out which locations would be most likely to fail or pass a follow-up inspection after already failing one or more times before. You can read more about our motivation and reasoning for choosing this problem in our <a href="https://www.azavea.com/blog/2017/09/15/building-inspection-prediction/">post about it on the Azavea Blog</a>.</p>
 <div class="figure">
 <img src="plots/fig.x-Map_of_fails_and_passes.svg" />
 
 </div>
 <div id="datasets" class="section level2">
 <h2>Datasets</h2>
-<p>For this model we used data from The City of Philadelphia’s Department of Licenses and Inspections. Philadelphia makes all of it’s L&amp;I data available through the City’s Open Data Site, making it an excellent city to use to train the model. To keep the data manageable, we limited it to inspection outcomes from the past 3+ years (2014-2017).Â The L&amp;I data is stored in a relational database comprised of several datasets that record inspection outcomes at different levels. These levels include:</p>
+<p>For this model we used data from The City of Philadelphia’s Department of Licenses and Inspections. Philadelphia makes all of it’s L&amp;I data available through the City’s Open Data Site, making it an excellent city to use to train the model. To keep the data manageable, we limited it to inspection outcomes from the past 3+ years (2014-2017). The L&amp;I data is stored in a relational database comprised of several datasets that record inspection outcomes at different levels. These levels include:</p>
 <ul>
 <li>locations (every inspection and outcome that occurs at a given address)</li>
 <li>cases (a whole cycle of inspections at a given location starting with the initial inspection and ending with compliance)</li>
@@ -251,7 +251,7 @@ full_dat &lt;- cleanData(full_dat)
 # filter the data frame
 #   remove some NA fields, closed inspections
 filtered_dat &lt;- filterData(full_dat)</code></pre>
-<p>After joining the datasets we needed to create variables that measure the relationships among each inspection and the other inspections in it’s L&amp;I case. Though the dataset does come with a unique case identifier, it describes each inspection independently of other inspections in that case. Therefore, we needed to develop a process for iterating through the entire dataset, sequencing the inspection events in each case, measuring the time between events, and extrapolating them back to the main dataset.</p>
+<p>Compiling these data and summarizing them to the inspection-level required some significant data wrangling. We first joined the violation and inspection datasets on a unique ID. After that we needed to create variables that measure the relationships among each inspection and the other inspections in it’s L&amp;I case. Though the dataset does come with a unique case identifier, it describes each inspection independently of other inspections in that case. Therefore, we needed to develop a process for iterating through the entire dataset, sequencing the inspection events in each case, measuring the time between events, and extrapolating them back to the main dataset. This data pre-processing step may seem tedious but it was crucial to our modeling process.</p>
 <pre class="r"><code>measureFails &lt;- function(dat, row){
   # Given a row, loop through the dataset measuring the outcomes before
   # and after this point
@@ -374,8 +374,8 @@ df &lt;- durationVars(df)</code></pre>
 <img src="plots/fig.x-Joy_plots.svg" />
 
 </div>
-<p>It shows the relative distributions of two different time-based dependent variables for inspections that resulted in a failure and for those that didn’t. The areas in which the density curves diverge indicate where we are able to get predictive power from. For example cases that had gone fewer that 25 or more than ~65 days since an inspection were more likely to end passing their inspections.</p>
-<p>At this point we’re working with a dataset at the violation level. This means that there may be several rows that pertain to one inspection event. Before condensing the dataset to the inspection level, we needed to make sure we saved the information about which individual violations were found upon each inspection:</p>
+<p>This plot hints at the value of the resulting variables for predicting follow-up inspection outcomes. It shows the relative distributions of two different time-based dependent variables for inspections that resulted in a failure and for those that didn’t. The areas in which the density curves diverge indicate where we are able to get predictive power from. For example cases that had gone fewer that 25 or more than ~65 days since an inspection were more likely to end passing their inspections.</p>
+<p>At this point we’re working with a dataset at the violation level but we ultimately needed to conducted our analysis at the building inspection level. This means that we needed a dataset in which each row in our describes an individual inspection of one specific building. Our model tries to predict the outcome of each of these inspections. Predictor variables provide information about different levels of the dataset. For example, address-level variables described the location and ownership of the building. By contrast, violation-level variables tell us the total number of violations in a given case and the descriptions of each. Some of the most powerful predictors came from the case level. These variables measured the numbers of previous failures in a case or the duration between individual inspections. Before condensing the dataset to the inspection level, we needed to make sure we saved the information about which individual violations were found upon each inspection:</p>
 <pre class="r"><code># extract &#39;violation type&#39; variable and remove levels occurring &lt; 0.02%
 #   of the time
 df_violTpe  &lt;- df %&gt;%
@@ -397,7 +397,7 @@ ds &lt;- summariseInspections(df)</code></pre>
 </div>
 <div id="external-data-sources" class="section level2">
 <h2>External Data Sources</h2>
-<p>Up until this point, all of our variables we created were either included in one of the two Licenses and Inspections datasets or we derived them from out-of-the-box L&amp;I features. Our next step was to incorporate some data from external sources.</p>
+<p>Up until this point, all of our variables we created were either included in one of the two Licenses and Inspections datasets or we derived them from out-of-the-box L&amp;I features. We also tried to extract additional signal from external city datasets.</p>
 <p>Building inspection failure is often linked to vacancy so we tried gathering information from the City’s <a href="https://www.opendataphilly.org/dataset/vacant-property-indicators">Vacant Property Indicators dataset</a>. We created two different dummy variables that indicated whether or not we found the building’s address and/or owner in the vacancy database.</p>
 <pre class="r"><code># read dataset
 vpi &lt;- read.csv(&quot;http://data.phl.opendata.arcgis.com/datasets/f7ed68293c5\

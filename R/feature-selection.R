@@ -1,12 +1,12 @@
 ###########################################################################
-## PROJECT: L+I predictive modelimg
+## PROJECT: Building Inspection Prediction
 ##
 ## SCRIPT PURPOSE: Variable importance
 ##    - use boruta algorithm on all candidate predictor variables to
 ##      select important predictors
+## 
+## Azavea Data Analytics  /   www.azavea.com
 ##
-## DATE: 18 July 2017
-## AUTHOR: Simon Kassel
 ###########################################################################
 
 # helper functions 

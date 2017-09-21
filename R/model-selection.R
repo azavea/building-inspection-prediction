@@ -1,5 +1,5 @@
 ###########################################################################
-## PROJECT: L+I predictive modelimg
+## PROJECT: Building Inspection Prediction
 ##
 ## SCRIPT PURPOSE: Model building
 ##    - establish h2o cluster
@@ -8,9 +8,9 @@
 ##    - parameter grid tuning
 ##    - tust multiple models
 ##    - valid on test sets
+## 
+## Azavea Data Analytics  /   www.azavea.com
 ##
-## DATE: 18 July 2017
-## AUTHOR: Simon Kassel
 ###########################################################################
 
 # helper functions 

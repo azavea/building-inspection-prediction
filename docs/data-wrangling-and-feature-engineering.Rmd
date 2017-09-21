@@ -1,12 +1,12 @@
 ---
 title: "Data Preprocessing"
 ---
-The objective of this project was to create a tool that would allow inspectors to prioritize the buildings that they visited. This is a multi-faceted problem because many different events trigger several different types of inspections.  A robust tool may make different predictions for inspections in response to 311 calls vs. new construction vs. random surveys. In the interest of time and simplicity, we took aim at one specific aspect of this broader objective. We built a model that predicts the likelihood that a building will fail a follow-up inspection after it has already failed in the past. This means that we limited the scope of our analysis to buildings that already had a "case" in the inspection system.
+This model is meant to act as a tool for inspectors to prioritize which buildings to investigate. Specifically, we wanted to figure out which locations would be most likely to fail or pass a follow-up inspection after already failing one or more times before. You can read more about our motivation and reasoning for choosing this problem in our [post about it on the Azavea Blog](https://www.azavea.com/blog/2017/09/15/building-inspection-prediction/).
 
 ![](plots/fig.x-Map_of_fails_and_passes.svg)
 
 ## Datasets
-For this model we used data from The City of Philadelphia's Department of Licenses and Inspections. Philadelphia makes all of it's L&I data available through the City's Open Data Site, making it an excellent city to use to train the model. To keep the data manageable, we limited it to inspection outcomes from the past 3+ years (2014-2017). The L&I data is stored in a relational database comprised of several datasets that record inspection outcomes at different levels. These levels include:
+For this model we used data from The City of Philadelphia's Department of Licenses and Inspections. Philadelphia makes all of it's L&I data available through the City's Open Data Site, making it an excellent city to use to train the model. To keep the data manageable, we limited it to inspection outcomes from the past 3+ years (2014-2017). The L&I data is stored in a relational database comprised of several datasets that record inspection outcomes at different levels. These levels include:
 
 * locations (every inspection and outcome that occurs at a given address)
 * cases (a whole cycle of inspections at a given location starting with the initial inspection and ending with compliance)
@@ -49,8 +49,7 @@ full_dat <- cleanData(full_dat)
 #   remove some NA fields, closed inspections
 filtered_dat <- filterData(full_dat)
 ```
-
-After joining the datasets we needed to create variables that measure the relationships among each inspection and the other inspections in it's L&I case. Though the dataset does come with a unique case identifier, it describes each inspection independently of other inspections in that case. Therefore, we needed to develop a process for iterating through the entire dataset, sequencing the inspection events in each case, measuring the time between events, and extrapolating them back to the main dataset.
+Compiling these data and summarizing them to the inspection-level required some significant data wrangling. We first joined the violation and inspection datasets on a unique ID. After that we needed to create variables that measure the relationships among each inspection and the other inspections in it's L&I case. Though the dataset does come with a unique case identifier, it describes each inspection independently of other inspections in that case. Therefore, we needed to develop a process for iterating through the entire dataset, sequencing the inspection events in each case, measuring the time between events, and extrapolating them back to the main dataset. This data pre-processing step may seem tedious but it was crucial to our modeling process.
 
 ```{r eval=FALSE}
 
@@ -187,9 +186,9 @@ The following plot gives us a good indication of the value of the resulting vari
 
 ![](plots/fig.x-Joy_plots.svg)
 
-It shows the relative distributions of two different time-based dependent variables for inspections that resulted in a failure and for those that didn't. The areas in which the density curves diverge indicate where we are able to get predictive power from. For example cases that had gone fewer that 25 or more than ~65 days since an inspection were more likely to end passing their inspections.
+This plot hints at the value of the resulting variables for predicting follow-up inspection outcomes. It shows the relative distributions of two different time-based dependent variables for inspections that resulted in a failure and for those that didn't. The areas in which the density curves diverge indicate where we are able to get predictive power from. For example cases that had gone fewer that 25 or more than ~65 days since an inspection were more likely to end passing their inspections.
 
-At this point we're working with a dataset at the violation level. This means that there may be several rows that pertain to one inspection event. Before condensing the dataset to the inspection level, we needed to make sure we saved the information about which individual violations were found upon each inspection:
+At this point we're working with a dataset at the violation level but we ultimately needed to conducted our analysis at the building inspection level. This means that we needed a dataset in which each row in our describes an individual inspection of one specific building. Our model tries to predict the outcome of each of these inspections. Predictor variables provide information about different levels of the dataset. For example, address-level variables described the location and ownership of the building. By contrast, violation-level variables tell us the total number of violations in a given case and the descriptions of each. Some of the most powerful predictors came from the case level. These variables measured the numbers of previous failures in a case or the duration between individual inspections. Before condensing the dataset to the inspection level, we needed to make sure we saved the information about which individual violations were found upon each inspection:
 
 ```{r eval=FALSE}
 
@@ -217,11 +216,10 @@ Then group by a unique inspection identifier and summarize our variables:
 ds <- summariseInspections(df)
 
 ```
-
 We also created additional variables that would account for spatial autocorrelation among the independent variable. These variables measured the average distances to the n nearest instances of repeat or non-repeat failure buildings. However, we did some independent tests that did not find any spatial autocorrelation among the dependent variable. When we finally built models we found that these distance variables were only marginally important predictors of inspection outcomes.
 
 ## External Data Sources
-Up until this point, all of our variables we created were either included in one of the two Licenses and Inspections datasets or we derived them from out-of-the-box L&I features. Our next step was to incorporate some data from external sources.
+Up until this point, all of our variables we created were either included in one of the two Licenses and Inspections datasets or we derived them from out-of-the-box L&I features. We also tried to extract additional signal from external city datasets.
 
 Building inspection failure is often linked to vacancy so we tried gathering information from the City's [Vacant Property Indicators dataset](https://www.opendataphilly.org/dataset/vacant-property-indicators). We created two different dummy variables that indicated whether or not we found the building's address and/or owner in the vacancy database.
 
@@ -323,4 +321,4 @@ non_mod_vars <- setdiff(names(ds), mod_vars)
 
 ```
 
-This process dramatically increased the number of features in our dataset but it gave us the option to include all of our variables into any model. In the [next section](feature-selection.html) we will walk through our process for separating predictively important features from non-important ones. 
+This process dramatically increased the number of features in our dataset but it gave us the option to include all of our variables into any model. In the [next section](feature-selection.html) we will walk through our process for separating predictively important features from non-important ones.

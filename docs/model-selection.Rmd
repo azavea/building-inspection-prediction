@@ -2,9 +2,19 @@
 title: "Model Selection"
 ---
 
+## Machine Learning
+If you are not too familiar with how machine learning works, the fundamental idea is that you build a model on observed "training" data and use it to predict for unknown cases of the same event. In this case the "event" is the outcome of a follow-up building inspection. By training a model on past inspections for which we know the outcome, we can figure out exactly which factors will help to predict the outcome.
+
+<img src="images/zeiss.png"></img>
+*Source: zeiss.com*
+
+This diagram shows how machine learning differs from traditional modeling. When you train machine learning models, you generate sets of rules and weights that you in turn apply to the data you would like to predict for. In order to understand how useful our model was, we needed to see how well it predicted for data that it had not been trained on. We randomly subset the dataset, allocating 60% of all inspections to the training set and the remaining 40% to the validation (or test set). We used repeated [cross-validation](https://en.wikipedia.org/wiki/Cross-validation_(statistics)) to train each model on the training set. This means that each time we trained a model, we repeatedly subset our data into smaller train-test categories, and averaged the results.
+
+## Model Building
+
 After compiling a large dataset, engineering a diverse set of features, and separating important from unimportant variables, the next step is test a variety of different models. However, before training models, we needed to partition our dataset in training and test sets.
 
-## Partition Dataset
+### Partition Dataset
 We randomly subset the data, allocating 60% of the inspections to a training set and the remaining 40% to a test set:
 
 ```{r eval=FALSE}
@@ -24,9 +34,9 @@ pred_vars <- setdiff(names(d), c(non_mod_vars, "o.failed.n", "o.failed.f"))
 
 ```
 
-When training the data, we used repeated cross-validation to train each model on the training set. This means that each time we trained a model, we repeatedly subset our data into smaller train-test categories, and averaged the results to get goodness of fit metrics that helped us evaluate the model. Once we settled on final models, we used them to predict for the 40% test set. This is important because the test set is made of data that the model "had not seen." If our goodness-of-fit metrics were worse on the test set than they were in training, this would be an indication that the model was overfit.
+When training the data, we used repeated cross-validation to train each model on the training set. This means that each time we trained a model, we repeatedly subset our data into smaller train-test categories, and averaged the results to get goodness of fit metrics that helped us evaluate the model. Once we settled on final models, we used them to predict for the 40% test set. This is important because the test set is made of data that the model "had not seen." If our goodness-of-fit metrics were worse on the test set than they were in training, this would be an indication that the model was overfit.
 
-## H2O
+### H2O
 We built all of our models for this project using [h2o](https://www.h2o.ai/). H2O is a free, open-source, machine learning platform. H2O makes it possible to run a number of different machine learning algorithms on a Java virtual machine. It creates multi-node clusters which enable you train machine learning models much faster than you would be able to otherwise. Before loading any data or training models, you need to initialize an h2o cluster:
 
 ```{r eval=FALSE}
@@ -72,7 +82,10 @@ cont_vars <- getVarNames(pred_vars, c("s."))
 
 ```
 
-## Logistic Regression
+### Model Types
+The process of selecting a model resembles a type of feedback loop. We tried implementing a series of different model types. For each model type we experimented with different collections of variables. We used random hyper-parameter grid searches to twist all of the "knobs" that one uses to control exactly how the model operates. By experimenting with different combinations of hyper-parameter settings we could eventually hone in on the set that resulted in the highest cross-validated accuracy. Where appropriate, we tried "interacting" categorical variables, which means that we created dummy variables for various combinations of binary factors. Finally, we experimented with ensemble models that combined predicted probabilities from multiple different sub-models. These ensembles are useful when the sub-models predict differently for the same response variable. However, in our case the correlation between the sub-model predicted probabilities was too strong for the ensembling to make much of a difference.
+
+#### Logistic Regression
 The first and least powerful model we tried was the logistic regression (glm). This model uses a "link" function to implement a linear model for a binary outcome. As opposed to the latter two models, the glm model can take categorical variables. Therefore we needed to specify a set of predictors that included the original factor variables as opposed to the one-hot encoded numerical features that we created in the feature engineering section. The logistic regression is good because it is fast and simple. It does not have many hyper-parameters to tune. In this case, the only hyper-parameter that we tuned was the `alpha` value. This hyper-parameter controls the regularization penalty in the model. We performed a hyper-parameter "grid" search for alpha. However, "grid" in this case is slightly misleading given that we were searching over an only one-dimensional vector of alpha values.     
 
 ```{r eval=FALSE}
@@ -126,7 +139,7 @@ head(glm_mod@model$cross_validation_metrics_summary)
 
  The second output shows model performance metrics across each of the 10 cv folds. The low AUC standard deviation (0.006) indicates that the model performed consistently across many random samples and that we were not overfitting the training data.
 
-## Logistic Regression with Interaction Terms
+#### Logistic Regression with Interaction Terms
 One of the shortcomings of a logistic regression model (at least as compared to the tree-based models we'll discuss later on), is that it does not automatically incorporate interaction among predictor variables. One way to add this element to a glm model is to use interaction terms. Here's another of Chris Albon's flashcards to tell us about them.
 
 <div class="embedded-tweet">
@@ -178,7 +191,7 @@ all_glm_results <- llply(all_glm_mods, getPredictions, validation_frame = int_va
 
 We tried several different ensembles of glm models with interaction terms but found that adding these variables only slightly improved performance over the baseline logistic regression.
 
-## Gradient Boosting Machine
+#### Gradient Boosting Machine
 After running training a logistic regression model, we moved on two try out two different decision tree-based algorithms. The first of these was a Gradient Boosting Machine (GBM) model. This is an ensemble method, meaning it combines the outputs of a number of different decision trees. It fits a series of deeper learners to the data and then goes "deeper" by fitting additional trees to the residuals. This technique makes it possible to pick up patterns in the data that the logistic regression is unable. However, it also makes it much easier to overfit to the training data.
 
 You can avoid overfitting by tuning hyper-parameters such as `max_depth`, which controls the maximum number of nodes allowed in any decision tree within the model. We created a hyper-parameter grid that included sample rate (`sample_rate`), column sample rate (`col_sample_rate`), and learning rate (`learn_rate`) in addition to tree depth.
@@ -239,7 +252,7 @@ head(gbm_mod@model$cross_validation_metrics_summary)
 
 With an mean auc value of 0.83, the best GBM model proved to be significantly better at predicting inspection outcomes than the logistic regression.
 
-##Random Forest
+#### Random Forest
 The other decision tree model that we tried was a Random Forest (RF). Random forest models are very popular due to their combination of flexibility and strong predictive power.  Let's take one more look at one more machine learning flashcard to get a sense of how random forest models work for classification problems like the one we're working with now.
 
 <div class="embedded-tweet">
@@ -299,7 +312,7 @@ head(gbm_mod@model$cross_validation_metrics_summary)
 
 You can see that the RF cross-validation metrics on the training set look very similar to those of the gradient boosting model. The RF average AUC value ended up slightly lower than the same metric for the GBM model, indicating that the latter was slightly better at predicting inspection outcomes.
 
-##Ensemble Model
+#### Ensemble Model
 Our final step in the model selection process was to experiment with ensembling our various models. In this context, an ensemble is a way to combine the "wisdom" of multiple models into one. We tried two different ensembling methods: majority vote and bayesian averaging. To calculate the former, we generated binary classifications from predicted probabilities for each model, tallied up the classification "votes" and chose a winner. When working with the latter, we simply averaged averaged all of the predicted probabilities and generated binary classifications from the resulting values.
 
 ```{r eval=FALSE}
@@ -319,4 +332,4 @@ results <- results %>%
 
 In the end, we found that neither of these ensemble methods improved our predictive power over the standard RF and GBM models. These ensembles are useful when the sub-models predict differently for the same response variable. However, in our case the correlation between the sub-model predicted probabilities was too strong for the combination to make much of a difference.
 
-We will look over the model's predicitons on out-of-sample data in the [next section](results.html).
+You can find out about our model's predictions on out-of-sample data in the [results section](results.html).
