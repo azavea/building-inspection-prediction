@@ -1,7 +1,7 @@
 ---
 title: "Data Preprocessing"
 ---
-This model is meant to act as a tool for inspectors to prioritize which buildings to investigate. Specifically, we wanted to figure out which locations would be most likely to fail or pass a follow-up inspection after already failing one or more times before. You can read more about our motivation and reasoning for choosing this problem in our [post about it on the Azavea Blog](https://www.azavea.com/blog/2017/09/15/building-inspection-prediction/).
+This model is meant to act as a tool for inspectors to prioritize which buildings to investigate. Specifically, we wanted to figure out which locations would be most likely to fail or pass a follow-up inspection after already failing one or more times before. You can read more about our motivation and reasoning for choosing this problem in our [post about it on the Azavea Blog](https://www.azavea.com/blog/2017/09/21/building-inspection-prediction/).
 
 ![](plots/fig.x-Map_of_fails_and_passes.svg)
 
