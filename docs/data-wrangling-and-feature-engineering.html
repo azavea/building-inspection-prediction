@@ -20,8 +20,8 @@
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
-<link href="site_libs/highlightjs-1.1/default.css" rel="stylesheet" />
-<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -30,10 +30,12 @@
   }
 </style>
 <script type="text/javascript">
-if (window.hljs && document.readyState && document.readyState === "complete") {
-   window.setTimeout(function() {
-      hljs.initHighlighting();
-   }, 0);
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
 }
 </script>
 
@@ -205,7 +207,7 @@ $(document).ready(function () {
 </div>
 
 
-<p>This model is meant to act as a tool for inspectors to prioritize which buildings to investigate. Specifically, we wanted to figure out which locations would be most likely to fail or pass a follow-up inspection after already failing one or more times before. You can read more about our motivation and reasoning for choosing this problem in our <a href="https://www.azavea.com/blog/2017/09/15/building-inspection-prediction/">post about it on the Azavea Blog</a>.</p>
+<p>This model is meant to act as a tool for inspectors to prioritize which buildings to investigate. Specifically, we wanted to figure out which locations would be most likely to fail or pass a follow-up inspection after already failing one or more times before. You can read more about our motivation and reasoning for choosing this problem in our <a href="https://www.azavea.com/blog/2017/09/21/building-inspection-prediction/">post about it on the Azavea Blog</a>.</p>
 <div class="figure">
 <img src="plots/fig.x-Map_of_fails_and_passes.svg" />
 

@@ -20,8 +20,8 @@
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
-<link href="site_libs/highlightjs-1.1/default.css" rel="stylesheet" />
-<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -30,10 +30,12 @@
   }
 </style>
 <script type="text/javascript">
-if (window.hljs && document.readyState && document.readyState === "complete") {
-   window.setTimeout(function() {
-      hljs.initHighlighting();
-   }, 0);
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
 }
 </script>
 
@@ -217,7 +219,7 @@ $(document).ready(function () {
 <p>We have built a proof of concept model that seeks to address one of these problems: building safety. The objective is to answer the question of which buildings inspectors should prioritize in order to maximize public safety? This site contains a detailed description of our model and process for building it.</p>
 <p><img id="main" src="plots/fig.x-Map_of_fails_and_passes.png"></img></p>
 <p>We have divided this write-up into four sections: <a href="https://azavea.github.io/building-inspection-prediction/data-wrangling-and-feature-engineering.html">data pre-processing</a>, <a href="https://azavea.github.io/building-inspection-prediction/feature-selection.html">feature selection</a>, <a href="https://azavea.github.io/building-inspection-prediction/model-selection.html">model building</a> and finally, <a href="file:///C:/files/data_analytics/building-inspection-prediction/docs/results.html">results</a>. In addition to code snippets and annotation, these sections each include images and plots that help give a full picture of the process.</p>
-<p>This site is meant to be fairly technical. For a higher level look at the project, check out its <a href="https://www.azavea.com/blog/2017/09/15/building-inspection-prediction/">write-up on the Azavea blog</a>. If you would like to replicate this analysis, feel free do download the <a href="https://github.com/azavea/building-inspection-prediction">repository</a>.</p>
+<p>This site is meant to be fairly technical. For a higher level look at the project, check out its <a href="https://www.azavea.com/blog/2017/09/21/building-inspection-prediction/">write-up on the Azavea blog</a>. If you would like to replicate this analysis, feel free do download the <a href="https://github.com/azavea/building-inspection-prediction">repository</a>.</p>
 <p>This project was completed by the Data Analytics Team at Azavea. The data we used came from the City of Philadelphia Departments of Licenses and Inspections, Revenue, and Innovation and Technology. We conducted the analysis using R and made use of the following packages: dplyr, tidyr, ggplot2, data.table, magrittr, sp, rgdal, lubridate, plyr, forcats, caret, spatstat, RCurl, jsonlite, Boruta, pROC, statmod, h2o, sf, ggjoy, plotROC, ggpubr, waffle and svglite.</p>
 </div>
 

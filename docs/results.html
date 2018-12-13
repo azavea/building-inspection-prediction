@@ -20,8 +20,8 @@
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
-<link href="site_libs/highlightjs-1.1/default.css" rel="stylesheet" />
-<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+<link href="site_libs/highlightjs-9.12.0/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -30,10 +30,12 @@
   }
 </style>
 <script type="text/javascript">
-if (window.hljs && document.readyState && document.readyState === "complete") {
-   window.setTimeout(function() {
-      hljs.initHighlighting();
-   }, 0);
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
 }
 </script>
 
@@ -225,9 +227,17 @@ $(document).ready(function () {
 <p>Without any understanding of the data, you may not know what to make of these accuracy rates. You need some sort of baseline to compare them to in order to determine the quality of the model. This metric approximates the accuracy rate we could expect without any predictive intelligence. One way to calculate a baseline is by determining what our accuracy rate would be if we guessed the most frequently occurring outcome every time.</p>
 <pre class="r"><code># packages
 packages(c(&quot;tidyverse&quot;, &quot;data.table&quot;, &quot;sp&quot;, &quot;caret&quot;, &quot;plyr&quot;, &quot;pROC&quot;, &quot;statmod&quot;,
-           &quot;h2o&quot;, &quot;Boruta&quot;))
-
-# baseline accuracy
+           &quot;h2o&quot;, &quot;Boruta&quot;))</code></pre>
+<pre><code>## Installing package into &#39;/home/azavea/R/x86_64-pc-linux-gnu-library/3.4&#39;
+## (as &#39;lib&#39; is unspecified)
+## Installing package into &#39;/home/azavea/R/x86_64-pc-linux-gnu-library/3.4&#39;
+## (as &#39;lib&#39; is unspecified)
+## Installing package into &#39;/home/azavea/R/x86_64-pc-linux-gnu-library/3.4&#39;
+## (as &#39;lib&#39; is unspecified)
+## Installing package into &#39;/home/azavea/R/x86_64-pc-linux-gnu-library/3.4&#39;
+## (as &#39;lib&#39; is unspecified)</code></pre>
+<pre><code>## also installing the dependencies &#39;bitops&#39;, &#39;RCurl&#39;</code></pre>
+<pre class="r"><code># baseline accuracy
 baseline &lt;- round(max(table(ds$o.failed.n)) / nrow(ds), 2)
 print(paste0(&quot;Baseline Accuracy: &quot;, baseline))</code></pre>
 <pre><code>## [1] &quot;Baseline Accuracy: 0.57&quot;</code></pre>
